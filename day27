@@ -1,0 +1,137 @@
+/*Problem: Find Intersection Point of Two Linked Lists - Implement using linked list with dynamic memory allocation.
+
+Input:
+- First line: integer n
+- Second line: n space-separated integers (first list)
+- Third line: integer m
+- Fourth line: m space-separated integers (second list)
+
+Output:
+- Print value of intersection node or 'No Intersection'
+
+Example:
+Input:
+5
+10 20 30 40 50
+4
+15 25 30 40 50
+
+Output:
+30
+
+Explanation:
+Calculate lengths, advance pointer in longer list, traverse both simultaneously. First common node is intersection.*/
+#include <stdio.h>
+#include <stdlib.h>
+
+/* ---------- Linked List Node ---------- */
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+/* ---------- Utility Functions ---------- */
+Node* create_node(int val) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    if (!node) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    node->data = val;
+    node->next = NULL;
+    return node;
+}
+
+void append_tail(Node** head, Node** tail, int val) {
+    Node* node = create_node(val);
+    if (*tail) {
+        (*tail)->next = node;
+        *tail = node;
+    } else {
+        *head = *tail = node;
+    }
+}
+
+size_t list_length(Node* head) {
+    size_t len = 0;
+    while (head) {
+        ++len;
+        head = head->next;
+    }
+    return len;
+}
+
+Node* get_node_at(Node* head, size_t index) {
+    // 0-based index
+    while (head && index--) {
+        head = head->next;
+    }
+    return head;
+}
+
+/* Free nodes from 'head' up to but not including 'stop'.
+   If stop == NULL, frees the entire list. */
+void free_upto(Node* head, Node* stop) {
+    while (head && head != stop) {
+        Node* tmp = head;
+        head = head->next;
+        free(tmp);
+    }
+}
+
+/* Free entire list from 'head' */
+void free_all(Node* head) {
+    while (head) {
+        Node* tmp = head;
+        head = head->next;
+        free(tmp);
+    }
+}
+
+/* ---------- Intersection Logic ---------- */
+Node* find_intersection(Node* head1, Node* head2) {
+    size_t len1 = list_length(head1);
+    size_t len2 = list_length(head2);
+
+    Node* p = head1;
+    Node* q = head2;
+
+    // Advance pointer in longer list by the difference in lengths
+    if (len1 > len2) {
+        size_t d = len1 - len2;
+        while (d-- && p) p = p->next;
+    } else {
+        size_t d = len2 - len1;
+        while (d-- && q) q = q->next;
+    }
+
+    // Traverse simultaneously to find first common node
+    while (p && q) {
+        if (p == q) return p;
+        p = p->next;
+        q = q->next;
+    }
+    return NULL; // No intersection
+}
+
+/* ---------- Build Lists According to Input Spec ---------- */
+/*
+   We interpret the sample format as: two sequences that may share a common suffix.
+   To create a *real* intersection, we:
+   - Build list1 with fresh nodes for all n elements.
+   - Detect the longest common suffix between arr1 and arr2.
+   - Build list2's unique prefix with fresh nodes, then point it to the shared node
+     in list1 at the start of the common suffix (if any).
+*/
+int main(void) {
+    int n;
+    if (scanf("%d", &n) != 1) return 0;
+
+    int* a = NULL;
+    if (n > 0) {
+        a = (int*)malloc(n * sizeof(int));
+        if (!a) { fprintf(stderr, "Memory allocation failed\n"); return 1; }
+        for (int i = 0; i < n; ++i) scanf("%d", &a[i]);
+    }
+
+
