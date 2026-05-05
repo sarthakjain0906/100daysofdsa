@@ -1,0 +1,23 @@
+def bucket_sort(arr):
+    n = len(arr)
+    if n == 0:
+        return arr
+
+    # Create n empty buckets
+    buckets = [[] for _ in range(n)]
+
+    # Distribute elements into buckets
+    for x in arr:
+        index = int(n * x)   # bucket index
+        buckets[index].append(x)
+
+    # Sort each bucket
+    for i in range(n):
+        buckets[i].sort()
+
+    # Concatenate buckets
+    result = []
+    for bucket in buckets:
+        result.extend(bucket)
+
+    return result
