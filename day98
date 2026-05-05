@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Interval structure */
+typedef struct {
+    int start;
+    int end;
+} Interval;
+
+/* Comparator for qsort (sort by start time) */
+int compare(const void *a, const void *b) {
+    Interval *i1 = (Interval *)a;
+    Interval *i2 = (Interval *)b;
+    return i1->start - i2->start;
+}
+
+/* Function to merge intervals */
+int mergeIntervals(Interval intervals[], int n, Interval result[]) {
+    if (n == 0)
+        return 0;
+
+    /* Sort intervals */
+    qsort(intervals, n, sizeof(Interval), compare);
+
+    int count = 0;
+    result[count] = intervals[0];
+
+    for (int i = 1; i < n; i++) {
+        /* If overlapping */
+        if (intervals[i].start <= result[count].end) {
+            if (intervals[i].end > result[count].end)
+                result[count].end = intervals[i].end;
+        } else {
+            count++;
+            result[count] = intervals[i];
+        }
+    }
+
+    return count + 1;  // number of merged intervals
+}
+
+/* Driver code */
+int main() {
+    Interval intervals[] = {{1,3}, {2,6}, {8,10}, {15,18}};
+    int n = sizeof(intervals) / sizeof(intervals[0]);
+
+    Interval result[n];
+    int mergedCount = mergeIntervals(intervals, n, result);
+
+    printf("Merged Intervals:\n");
+    for (int i = 0; i < mergedCount; i++) {
+        printf("[%d, %d]\n", result[i].start, result[i].end);
+    }
+
+    return 0;
+}
